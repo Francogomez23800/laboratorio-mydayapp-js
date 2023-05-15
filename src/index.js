@@ -12,6 +12,110 @@ const arrayList = []
 
 const listCount = document.querySelector('strong')
 
+function saveTasks() {
+    let algo = arrayList.map(ele => { return ele.outerText })
+    localStorage.setItem('tasks', JSON.stringify(algo))
+}
+
+function loadTasks() {
+    let tanto = JSON.parse(localStorage.getItem('tasks'))
+    listCount.textContent = tanto?.length
+    tanto?.forEach(ele => {
+        renderTasks(ele)
+    })
+}
+
+loadTasks()
+
+function renderTasks(Task) {
+    const li = document.createElement('li')
+    li.className = 'view'
+
+    const div = document.createElement('div')
+    div.className = 'view'
+
+    const checkbox = document.createElement('input')
+    checkbox.setAttribute('class', 'toggle')
+    checkbox.setAttribute('type', 'checkbox');
+
+    div.appendChild(checkbox)
+
+    checkbox.addEventListener('click', (e) => {
+        li.className = e.target.checked ? 'completed' : 'view'
+
+        let completed = document.querySelectorAll('li.completed')
+
+        if (completed.length >= 1) {
+            clearCompleted.style.display = 'block'
+        } else {
+            clearCompleted.style.display = 'none'
+        }
+        // clearCompleted.style.display = e.target.checked ? 'block' : 'none'
+
+        e.target.checked ? arrayList.pop() : arrayList.push(li)
+        listCount.textContent = arrayList.length
+        saveTasks(array);
+
+    })
+
+    const label = document.createElement('label')
+    label.textContent = Task
+
+    div.appendChild(label)
+
+    const deleteBtn = document.createElement('button')
+    deleteBtn.className = 'destroy'
+
+    div.appendChild(deleteBtn)
+
+    const editTask = document.createElement('input')
+    editTask.className = 'edit'
+    editTask.setAttribute('value', label.value)
+
+    div.appendChild(editTask)
+
+    li.appendChild(div)
+
+    list.appendChild(li)
+
+    label.addEventListener('dblclick', (e) => {
+
+        const inputEdit = document.createElement('input')
+        inputEdit.className = 'edit'
+        inputEdit.setAttribute('value', e.target.innerText)
+        inputEdit.focus()
+
+        li.appendChild(inputEdit)
+        li.classList.remove('view')
+        li.classList.add('editing')
+
+
+        inputEdit.addEventListener('keypress', (e) => {
+            if (e.key === 'Enter' && inputEdit.value.length >= 1) {
+                li.classList.remove('editing')
+                li.classList.add('view')
+                label.textContent = inputEdit.value
+                li.removeChild(inputEdit)
+                saveTasks(arrayList);
+            }
+        })
+
+    })
+
+    arrayList.push(li)
+
+    listCount.textContent = arrayList.length
+
+    deleteBtn.addEventListener('click', (e) => {
+        list.removeChild(li)
+        arrayList.pop()
+        listCount.textContent = arrayList.length
+    })
+
+    input.value = ''
+
+}
+
 const clearCompleted = document.querySelector('.clear-completed')
 clearCompleted.style.display = 'none'
 
@@ -25,104 +129,16 @@ function countLetters() {
     return inputValue.length
 }
 
+
+
 input.addEventListener('keypress', (e) => {
     if (e.key === "Enter" && countLetters() >= 1) {
-
-        const li = document.createElement('li')
-        li.className = 'view'
-
-        const div = document.createElement('div')
-        div.className = 'view'
-
-        const checkbox = document.createElement('input')
-        checkbox.setAttribute('class', 'toggle')
-        checkbox.setAttribute('type', 'checkbox');
-
-        div.appendChild(checkbox)
-
-        checkbox.addEventListener('click', (e) => {
-            li.className = e.target.checked ? 'completed' : 'view'
-
-            let completed = document.querySelectorAll('li.completed')
-
-            if (completed.length >= 1) {
-                clearCompleted.style.display = 'block'
-            } else {
-                clearCompleted.style.display = 'none'
-            }
-            // clearCompleted.style.display = e.target.checked ? 'block' : 'none'
-
-            e.target.checked ? arrayList.pop() : arrayList.push(li)
-            listCount.textContent = arrayList.length
-            // savetasks();
-
-        })
-
-        const label = document.createElement('label')
-        label.textContent = input.value
-
-        div.appendChild(label)
-
-        const deleteBtn = document.createElement('button')
-        deleteBtn.className = 'destroy'
-
-        div.appendChild(deleteBtn)
-
-        const editTask = document.createElement('input')
-        editTask.className = 'edit'
-        editTask.setAttribute('value', label.value)
-
-        div.appendChild(editTask)
-
-        li.appendChild(div)
-
-        list.appendChild(li)
-
-        label.addEventListener('dblclick', (e) => {
-            const valueGenerated = e.target.innerText
-
-            const inputEdit = document.createElement('input')
-            inputEdit.className = 'edit'
-            inputEdit.setAttribute('value', e.target.innerText)
-            inputEdit.focus()
-
-            li.appendChild(inputEdit)
-            li.classList.remove('view')
-            li.classList.add('editing')
-
-
-            inputEdit.addEventListener('keypress', (e) => {
-                if (e.key === 'Enter' && inputEdit.value.length >= 1) {
-                    li.classList.remove('editing')
-                    li.classList.add('view')
-                    label.textContent = inputEdit.value
-                    li.removeChild(inputEdit)
-                } else {
-                    li.classList.remove('editing')
-                    li.classList.add('view')
-                    label.textContent = valueGenerated
-                    li.removeChild(inputEdit)
-                    // savetasks();
-                }
-            })
-
-        })
-
-        arrayList.push(li)
-
-        listCount.textContent = arrayList.length
-
-        deleteBtn.addEventListener('click', (e) => {
-            list.removeChild(li)
-        })
-
-        input.value = ''
-        console.log(arrayList[0].innerText)
-
-        // savetasks();
+        renderTasks(input.value)
+        saveTasks(arrayList);
     }
-
 })
+
+
 
 function showTask(status) {
     let elements = list.querySelectorAll('li')
@@ -167,7 +183,7 @@ clearCompleted.addEventListener('click', () => {
         const node = elements[i];
         list.removeChild(node)
     }
-    // savetasks();
+    saveTasks(saveTasks);
 })
 
 function showAllTask() {
